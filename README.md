@@ -1,0 +1,189 @@
+Written with the help of github-copilot (GPT-4o), this README provides detailed instructions for setting up and running the RNA-Seq processing pipeline. 
+
+# RNA-Seq Processing Pipeline
+
+This pipeline processes RNA-Seq data, including trimming, quality control, read mapping, and quantification. It uses `fastp` for trimming and quality control, `STAR` for read mapping, and `HTSeq` for quantification. I make no claims that this is the best piepline, but it works for my purposes and should be adaptable to your needs with minimal modifications.
+
+---
+
+## Table of Contents
+1. [Requirements](#requirements)
+2. [Setup](#setup)
+3. [Pipeline Overview](#pipeline-overview)
+4. [Input Files](#input-files)
+5. [Output Files](#output-files)
+6. [Running the Pipeline](#running-the-pipeline)
+7. [Directory Structure](#directory-structure)
+8. [Troubleshooting](#troubleshooting)
+
+---
+
+## Requirements
+
+### Software
+- **Conda**: Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://www.anaconda.com/products/distribution).
+- **Snakemake**: Install via Conda:
+  ```bash
+  conda install -c bioconda snakemake
+  ```
+
+### Conda Environments
+The pipeline uses the following Conda environments:
+- `fastp`: For trimming and quality control.
+- `qc`: For additional quality control tools (`fastqc`, `multiqc`).
+- `rna_seq_processing`: For read mapping (`STAR`), BAM file processing (`samtools`), and quantification (`HTSeq`).
+
+Environment YAML files are provided in `workflow/envs/`. See the [Setup](#setup) section for instructions on creating these environments.
+
+---
+
+## Setup
+
+1. **Clone the Repository**:
+   Copy the pipeline files to your working directory.
+
+2. **Install Snakemake**:
+   ```bash
+   conda install -c bioconda snakemake
+   ```
+
+3. **Create Conda Environments**:
+   Use the provided YAML files to create the environments:
+   ```bash
+   conda env create -f workflow/envs/fastp.yaml
+   conda env create -f workflow/envs/qc.yaml
+   conda env create -f workflow/envs/rna_seq_processing.yaml
+   ```
+
+4. **Verify Environments**:
+   Check that the environments were created successfully:
+   ```bash
+   conda env list
+   ```
+
+5. **Prepare Input Files**:
+   - Place your raw FASTQ files in the directory specified in `samples.csv`.
+   - Ensure the `samples.csv` file contains the correct metadata for your samples.
+
+---
+
+## Pipeline Overview
+
+### Steps
+1. **Trimming and Quality Control**:
+   - `fastp` trims raw reads and generates quality control reports.
+2. **Read Mapping**:
+   - `STAR` maps trimmed reads to the reference genome.
+3. **BAM File Processing**:
+   - `samtools` sorts and indexes BAM files.
+4. **Quantification**:
+   - `HTSeq` generates count tables for downstream analysis.
+
+### Tools
+- `fastp`: Trimming and QC.
+- `fastqc`/`multiqc`: Additional QC visualization.
+- `STAR`: Read alignment.
+- `samtools`: BAM file processing.
+- `HTSeq`: Quantification.
+
+---
+
+## Input Files
+
+### 1. `samples.csv`
+A CSV file containing metadata for your samples. Example:
+
+```csv
+strain,biorep,lane,fq1,fq2
+strain1,1,L001,data/strain1_biorep1_L001_R1.fastq.gz,data/strain1_biorep1_L001_R2.fastq.gz
+strain1,1,L002,data/strain1_biorep1_L002_R1.fastq.gz,data/strain1_biorep1_L002_R2.fastq.gz
+strain2,1,L001,data/strain2_biorep1_L001_R1.fastq.gz,data/strain2_biorep1_L001_R2.fastq.gz
+strain2,2,L001,data/strain2_biorep2_L001_R1.fastq.gz,data/strain2_biorep2_L001_R2.fastq.gz
+```
+
+### 2. Reference Genome
+- **Genome Index**: Directory containing the STAR genome index.
+- **Annotation File**: GFF file for HTSeq.
+
+Update the paths to these files in `config/config.yaml`.
+
+---
+
+## Output Files
+
+### Key Output Directories
+- **Trimmed FASTQ Files**: `results/trimmed_fq/`
+- **Quality Control Reports**: `results/qc/`
+- **Mapped Reads (SAM/BAM)**: `results/mapped_reads/` and `results/mapped_sorted_reads/`
+- **HTSeq Counts**: `results/htseq_counts/`
+
+---
+
+## Running the Pipeline
+
+1. **Edit Configuration**:
+   Update `config/config.yaml` to specify the paths to your `samples.csv`, reference genome, and output directories.
+
+2. **Run Snakemake**:
+   Execute the pipeline with:
+   ```bash
+   snakemake --use-conda --cores <number_of_cores>
+   ```
+
+3. **Check Outputs**:
+   - Trimmed FASTQ files will be in `results/trimmed_fq/`.
+   - Quality control reports will be in `results/qc/`.
+   - HTSeq count files will be in `results/htseq_counts/`.
+
+---
+
+## Directory Structure
+
+The pipeline assumes the following directory structure:
+
+```
+project/
+├── Snakefile
+├── config/
+│   ├── config.yaml
+│   └── samples.csv
+├── data/
+│   ├── strain1_biorep1_L001_R1.fastq.gz
+│   ├── strain1_biorep1_L001_R2.fastq.gz
+│   └── ...
+├── resources/
+│   └── genomes/
+│       └── h_vol/
+│           ├── indexes/
+│           └── genomic.gff
+├── workflow/
+│   └── envs/
+│       ├── fastp.yaml
+│       ├── qc.yaml
+│       └── rna_seq_processing.yaml
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+1. **Missing Conda Environments**:
+   - Ensure you created the environments using the provided YAML files.
+   - Verify with `conda env list`.
+
+2. **Incorrect File Paths**:
+   - Check that the paths in `samples.csv` and `config.yaml` are correct.
+
+3. **Snakemake Errors**:
+   - Use the `--printshellcmds` flag to debug:
+     ```bash
+     snakemake --use-conda --cores <number_of_cores> --printshellcmds
+     ```
+
+4. **Dependency Issues**:
+   - If a tool is missing, recreate the environment:
+     ```bash
+     conda env create -f workflow/envs/<env_file>.yaml
+     ```
+
