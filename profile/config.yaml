@@ -1,0 +1,13 @@
+jobs: 40
+cluster: >-
+    sbatch
+    --ntasks 1
+    --cpus-per-task {threads}
+    --mem {resources.mem_gb}
+    -o log/jobs/{rule}_{wildcards}_%j.out
+    -e log/jobs/{rule}_{wildcards}_%j.err
+    --account=schmidlab
+    -p schmidlab
+default-resources:
+    - threads=1
+    - mem_gb="4G"

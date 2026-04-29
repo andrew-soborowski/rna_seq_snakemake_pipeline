@@ -54,7 +54,7 @@ Environment YAML files are provided in `workflow/envs/`. See the [Setup](#setup)
    conda env create -f workflow/envs/qc.yaml
    conda env create -f workflow/envs/rna_seq_processing.yaml
    ```
-
+   qc.yaml is optional if you want to use trim-galore.
 4. **Verify Environments**:
    Check that the environments were created successfully:
    ```bash
@@ -100,6 +100,10 @@ strain1,1,L002,data/strain1_biorep1_L002_R1.fastq.gz,data/strain1_biorep1_L002_R
 strain2,1,L001,data/strain2_biorep1_L001_R1.fastq.gz,data/strain2_biorep1_L001_R2.fastq.gz
 strain2,2,L001,data/strain2_biorep2_L001_R1.fastq.gz,data/strain2_biorep2_L001_R2.fastq.gz
 ```
+Naming convention:
+- `strain`: Sample strain identifier. This will define the subfolders that results will be split into.
+- `biorep`: Biological replicate number. This will be tagged onto the output file but does not affect analysis. You can also include information like time here.
+- `lane`: Sequencing lane identifier. All files with matching `strain` and `biorep` will be merged together, so this will not show up in the final count files.
 
 ### 2. Reference Genome
 - **Genome Index**: Directory containing the STAR genome index.
@@ -161,6 +165,8 @@ project/
 │       ├── fastp.yaml
 │       ├── qc.yaml
 │       └── rna_seq_processing.yaml
+├── profile/
+|   └── config.yaml
 ```
 
 ---

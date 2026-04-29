@@ -1,0 +1,9 @@
+name: rna-seq-processing-env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - star=2.7.11a
+  - samtools=1.18
+  - htseq=2.0.4

@@ -1,0 +1,8 @@
+name: fastp_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - fastp=1.3.3  # Specify the version you need
+  - multiqc=1.34  # Specify the version you need

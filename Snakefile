@@ -28,7 +28,18 @@ rule all:
         #expand(f"{OUTPUT_DIRS['qc']}/untrimmed_multiqc/{{strain}}_multiqc_report.html", strain=strains),
         #expand(f"{OUTPUT_DIRS['qc']}/trimmed_multiqc/{{strain}}_multiqc_report.html", strain=strains),
         expand(f"{OUTPUT_DIRS['htseq']}/{{strain}}/{{strain}}_{{biorep}}.count", strain=strains, biorep=bioreps),
-        expand(f"{OUTPUT_DIRS['qc']}/fastp_reports/{{strain}}/{{strain}}_{{biorep}}_{{lane}}_fastp.html", strain=strains, biorep=bioreps, lane=lanes)
+        #expand(f"{OUTPUT_DIRS['qc']}/fastp_reports/{{strain}}/{{strain}}_{{biorep}}_{{lane}}_fastp.html", strain=strains, biorep=bioreps, lane=lanes)
+        f"{OUTPUT_DIRS['qc']}/fastp_multiqc_report.html"
+rule fastp_multiqc:
+    input:
+        expand(f"{OUTPUT_DIRS['qc']}/fastp_reports/{{strain}}/{{strain}}_{{biorep}}_{{lane}}_fastp.html", strain=strains, biorep=bioreps, lane=lanes, allow_missing=True),
+        expand(f"{OUTPUT_DIRS['qc']}/fastp_reports/{{strain}}/{{strain}}_{{biorep}}_{{lane}}_fastp.json", strain=strains, biorep=bioreps, lane=lanes, allow_missing=True)
+    output:
+        f"{OUTPUT_DIRS['qc']}/fastp_multiqc_report.html"
+    conda:
+        "workflow/envs/fastp.yaml"
+    shell:
+        "multiqc {OUTPUT_DIRS['qc']}/fastp_reports -n {output}"
 
 rule fastp_trim:
     input:
