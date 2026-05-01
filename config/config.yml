@@ -1,0 +1,21 @@
+# Path to the samples table (CSV file)
+samples: "data/omur_trmb_redo_samples.csv"
+
+# Output directories
+output_dirs:
+  raw_data: "data"
+  trimmed: "results/trimmed_reads"
+  mapped: "results/mapped_reads"
+  sorted: "results/mapped_sorted_reads"
+  qc: "results/qc"
+  htseq: "results/htseq_counts"
+
+# Reference genome and annotation files
+reference:
+  genome_dir: "resources/genomes/h_vol/indexes"
+  gff: "resources/genomes/h_vol/genomic.gff"
+
+# Conda environments
+envs:
+  fastp: "workflow/envs/fastp.yaml"
+  rna_seq_processing: "workflow/envs/rna_seq_processing.yaml"

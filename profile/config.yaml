@@ -1,13 +1,19 @@
+executor: slurm
+
+slurm:
+  job-name: "{rule}.{wildcards}"
+  account: schmidlab
+  partition: schmidlab
+  nodes: 1
+  cpus-per-task: "{threads}"
+  mem: "{resources.mem_gb}G"
+  output: "log/jobs/{rule}_{wildcards}_%j.out"
+  error: "log/jobs/{rule}_{wildcards}_%j.err"
+
 jobs: 40
-cluster: >-
-    sbatch
-    --ntasks 1
-    --cpus-per-task {threads}
-    --mem {resources.mem_gb}
-    -o log/jobs/{rule}_{wildcards}_%j.out
-    -e log/jobs/{rule}_{wildcards}_%j.err
-    --account=schmidlab
-    -p schmidlab
+retries: 2
+
 default-resources:
-    - threads=1
-    - mem_gb="4G"
+  threads: 1
+  mem_gb: 4
+  time: "24:00:00"
