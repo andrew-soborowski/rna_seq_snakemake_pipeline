@@ -1,3 +1,7 @@
 .snakemake/
 results
-data
+data/*
+slurm*
+snakemake_run.log
+test_slurm_output.txt
+resources/genomes/h_vol/*

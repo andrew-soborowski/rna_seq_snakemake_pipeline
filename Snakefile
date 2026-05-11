@@ -54,6 +54,7 @@ rule all:
         #expand(f"{OUTPUT_DIRS['qc']}/fastp_reports/{{strain}}/{{strain}}_{{biorep}}_{{lane}}_fastp.html", strain=strains, biorep=bioreps, lane=lanes)
         #valid_htseq_paths(),
         f"{OUTPUT_DIRS['qc']}/fastp_multiqc_report.html",
+        f"{OUTPUT_DIRS['qc']}/star_multiqc_report.html",
         expand(f"{OUTPUT_DIRS['htseq']}/{{strain}}/{{strain}}_{{biorep}}.count",
                zip, 
                strain=samples["strain"], 
@@ -77,6 +78,20 @@ rule fastp_multiqc:
     shell:
         "multiqc {params.qc_dir}/fastp_reports -n {output}"
 
+rule star_multiqc:
+    input:
+        expand(f"{OUTPUT_DIRS['mapped']}/{{strain}}/{{strain}}_{{biorep}}_Aligned.out.sam",
+            zip,
+            strain=samples["strain"],
+            biorep=samples["biorep"])
+    output:
+        f"{OUTPUT_DIRS['qc']}/star_multiqc_report.html"
+    conda:
+        "workflow/envs/fastp.yaml"
+    params: 
+        star_dir = OUTPUT_DIRS["mapped"]
+    shell:
+        "multiqc {params.star_dir} -n {output}"    
 rule fastp_trim:
     input:
         fq1=lambda wildcards: get_raw_file({"strain": wildcards.strain, "biorep": wildcards.biorep, "lane": wildcards.lane, "lr": "R1"}),
@@ -141,7 +156,7 @@ rule samtools_commands:
         "workflow/envs/rna_seq_processing.yaml"
     threads: 4
     resources:
-        mem_gb=30,
+        mem_mb=10000,
         threads="4"
     shell:
         "samtools view -b {input} | samtools sort - -o {output[0]} && samtools index {output[0]} {output[1]}"
@@ -154,7 +169,7 @@ rule htseq_quantification:
     conda:
         "workflow/envs/rna_seq_processing.yaml"
     resources:
-        mem_gb=20
+        mem_mb=10000
     shell:
         "htseq-count -r pos -s reverse -t gene -i locus_tag -f bam {input} resources/genomes/h_vol/genomic.gff > {output}"
 
@@ -170,7 +185,7 @@ rule map_trimmed_reads_star:
         mapped_dir = OUTPUT_DIRS["mapped"]
     threads: 12
     resources:
-        mem_gb=20,
+        mem_mb=10000,
         threads="12"
     conda:
         "workflow/envs/rna_seq_processing.yaml"
@@ -197,3 +212,11 @@ rule untrimmed_multiqc:
     shell:
         "multiqc {OUTPUT_DIRS['qc']}/untrimmed_fastqc/{{wildcards.strain}}/* -n {output}"
 '''
+rule test_slurm:
+    output:
+        "test_slurm_output.txt"
+    resources:
+        mem_mb=1000,
+        threads=1
+    shell:
+        "echo 'SLURM test successful' > {output}"

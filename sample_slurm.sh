@@ -14,4 +14,4 @@ source /hpc/group/schmidlab/als185/miniforge3/etc/profile.d/mamba.sh
 mamba activate /hpc/group/schmidlab/als185/miniforge3/envs/snakemake_env/
 
 #Recommend to do a dry run first, add a -n or --dry-run flag 
-snakemake --use-conda --profile ./profile -p -k -w  30 --rerun-incomplete &> snakemake_run.log
+snakemake --use-conda --profile ./profile -p -k -n -w  30 --rerun-incomplete &> snakemake_run.log

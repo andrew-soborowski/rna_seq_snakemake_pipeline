@@ -1,19 +1,20 @@
-executor: slurm
+executor: slurm  
 
-slurm:
-  job-name: "{rule}.{wildcards}"
-  account: schmidlab
-  partition: schmidlab
-  nodes: 1
-  cpus-per-task: "{threads}"
-  mem: "{resources.mem_gb}G"
-  output: "log/jobs/{rule}_{wildcards}_%j.out"
-  error: "log/jobs/{rule}_{wildcards}_%j.err"
 
-jobs: 40
-retries: 2
+cores: 40 #Only allow 40 cores to be used at a time, be nice to our labmates
+jobs: 40 #Only allow 40 jobs at a time
+retries: 2 #Allow failed jobs to be resubmitted up to 2 times
+jobname: "{rule}.{wildcards}.{jobid}" #This might work, it certainly used to about 4 snakemake major versions ago, but breaking changes and all...
+latency-wait: 30 #Wait 30 seconds after job completion before checking for output files, to avoid issues with file system latency
 
 default-resources:
-  threads: 1
-  mem_gb: 4
-  time: "24:00:00"
+  threads: 1 #Default to 1 thread per job, can be overridden in individual rules
+  mem_mb: 4000 #Default to 4GB of memory per job, can be overridden in individual rules
+  runtime: "12h" #Default to 12 hours of runtime per job, can be overridden in individual rules
+  slurm_partition: "schmidlab" #Default to the schmidlab partition, can run on general instead if needed
+  slurm_account: "schmidlab" #Needed if you want to run on schmidlab
+
+slurm-efficiency-report: True
+rerun-incomplete: True 
+show-failed-logs: True
+printshellcmds: True

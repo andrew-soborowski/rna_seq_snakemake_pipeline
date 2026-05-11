@@ -21,9 +21,11 @@ This pipeline processes RNA-Seq data, including trimming, quality control, read 
 ## Requirements
 
 ### Software
-- **Conda**: Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://www.anaconda.com/products/distribution).
+- **Conda/Mamba**: Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html), [Anaconda](https://www.anaconda.com/products/distribution) or [mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html). Nowdays, I prefer mamba because its fast, but a modern version of conda also works. If you use mamba, just replace `conda` with `mamba` in the commands below.
 - **Snakemake**: Install via Conda:
   ```bash
+  conda create -n snakemake_env -c bioconda snakemake
+  conda activate snakemake_env
   conda install -c bioconda snakemake
   ```
 
@@ -47,21 +49,7 @@ Environment YAML files are provided in `workflow/envs/`. See the [Setup](#setup)
    conda install -c bioconda snakemake
    ```
 
-3. **Create Conda Environments**:
-   Use the provided YAML files to create the environments:
-   ```bash
-   conda env create -f workflow/envs/fastp.yaml
-   conda env create -f workflow/envs/qc.yaml
-   conda env create -f workflow/envs/rna_seq_processing.yaml
-   ```
-   qc.yaml is optional if you want to use trim-galore.
-4. **Verify Environments**:
-   Check that the environments were created successfully:
-   ```bash
-   conda env list
-   ```
-
-5. **Prepare Input Files**:
+3. **Prepare Input Files**:
    - Place your raw FASTQ files in the directory specified in `samples.csv`.
    - Ensure the `samples.csv` file contains the correct metadata for your samples.
 
@@ -128,13 +116,19 @@ Update the paths to these files in `config/config.yaml`.
 1. **Edit Configuration**:
    Update `config/config.yaml` to specify the paths to your `samples.csv`, reference genome, and output directories.
 
-2. **Run Snakemake**:
+2. **Edit Cluster Configuration**:
+   Double check over `profile.config.yaml` to ensure setup is correct for DCC slurm environment. You can also adjust
+   default resource and partition settings here.
+
+3. **Edit slurm submission script**:
+   To run with slurm, edit the provided `sample_slurm.sh` script. Note that resource allocations in this script are only for the control script managing the jobs and NOT for the jobs themselves (those are edited either in the job definitions in the Snakefile or golbally in `profile.config.yaml`). Remember to adjust the conda/mamba profile and activation lines to match your environement setup. Your first run of this script will be a dry run. Check the output file to make sure all of your jobs are being correctly identfied. Once that looks good, remove the -n flag to submit the full set of jobs to the cluster.
+
+4. **Run Snakemake**:
    Execute the pipeline with:
    ```bash
-   snakemake --use-conda --cores <number_of_cores>
+   sbatch sample_slurm.sh
    ```
-
-3. **Check Outputs**:
+5. **Check Outputs**:
    - Trimmed FASTQ files will be in `results/trimmed_fq/`.
    - Quality control reports will be in `results/qc/`.
    - HTSeq count files will be in `results/htseq_counts/`.
