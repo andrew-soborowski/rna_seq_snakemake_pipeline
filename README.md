@@ -121,7 +121,7 @@ Update the paths to these files in `config/config.yaml`.
    default resource and partition settings here.
 
 3. **Edit slurm submission script**:
-   To run with slurm, edit the provided `sample_slurm.sh` script. Note that resource allocations in this script are only for the control script managing the jobs and NOT for the jobs themselves (those are edited either in the job definitions in the Snakefile or golbally in `profile.config.yaml`). Remember to adjust the conda/mamba profile and activation lines to match your environement setup. Your first run of this script will be a dry run. Check the output file to make sure all of your jobs are being correctly identfied. Once that looks good, remove the -n flag to submit the full set of jobs to the cluster.
+   To run with slurm, edit the provided `sample_slurm.sh` script. Note that resource allocations in this script are only for the control script managing the jobs and NOT for the jobs themselves (those are edited either in the job definitions in the Snakefile or golbally in `profile.config.yaml`). Remember to adjust the conda/mamba profile and activation lines to match your environement setup. Your first run of this script will be a dry run. Check the output file to make sure all of your jobs are being correctly identfied. Once that looks good, remove the -n flag to submit the full set of jobs to the cluster. Also, please remember to add your own email because I'll know if you didn't.
 
 4. **Run Snakemake**:
    Execute the pipeline with:
